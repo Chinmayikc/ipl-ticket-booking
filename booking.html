@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Book IPL 2026 match tickets online.">
+  <title>Book Tickets | IPL 2026</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header>
+    <nav class="container" aria-label="Main navigation">
+      <a class="brand" href="index.html">IPL <span>2026</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html#matches">Matches</a></li>
+        <li><a href="booking.html" aria-current="page">Book Ticket</a></li>
+        <li><a href="index.html#bookings">My Bookings</a></li>
+        <li><a href="index.html#guidelines">Guidelines</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="booking-page-hero">
+      <div class="container">
+        <p class="eyebrow">IPL 2026</p>
+        <h1>Book Your Match Tickets</h1>
+        <p>Enter your details, choose your match and stand, then submit your booking request.</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="container booking-page-layout">
+        <form class="form-card standalone-form" id="booking-form" action="booking.html" method="get">
+          <div class="form-grid">
+            <div class="full-width">
+              <label for="name">Full Name</label>
+              <input id="name" name="name" type="text" autocomplete="name" minlength="2" maxlength="60" required>
+            </div>
+            <div>
+              <label for="email">Email Address</label>
+              <input id="email" name="email" type="email" autocomplete="email" maxlength="100" required>
+            </div>
+            <div>
+              <label for="phone">Phone Number</label>
+              <input id="phone" name="phone" type="tel" autocomplete="tel" pattern="[0-9]{10,15}" minlength="10" maxlength="15" required>
+            </div>
+            <div class="full-width">
+              <label for="match">Match Selection</label>
+              <select id="match" name="match" required>
+                <option value="">Select a match</option>
+                <option value="match-01">Match 01: CSK vs MI, 28 Mar 2026</option>
+                <option value="match-02">Match 02: RCB vs KKR, 29 Mar 2026</option>
+                <option value="match-03">Match 03: MI vs KKR, 01 Apr 2026</option>
+              </select>
+            </div>
+            <div>
+              <label for="stand">Stand Category</label>
+              <select id="stand" name="stand" required>
+                <option value="">Select a stand</option>
+                <option value="general">General</option>
+                <option value="premium">Premium</option>
+                <option value="vip">VIP</option>
+              </select>
+            </div>
+            <div>
+              <label for="tickets">Number of Tickets</label>
+              <input id="tickets" name="tickets" type="number" min="1" max="10" required>
+            </div>
+          </div>
+
+          <fieldset>
+            <legend>Booking Preferences</legend>
+            <label class="choice"><input type="radio" name="delivery" value="digital" required> Digital ticket</label>
+            <label class="choice"><input type="radio" name="delivery" value="counter"> Collect at stadium counter</label>
+            <label class="choice"><input type="checkbox" name="updates" value="yes"> Send me match-day updates by email</label>
+          </fieldset>
+
+          <div class="form-actions">
+            <button class="button" type="submit">Submit Booking</button>
+            <button class="button secondary light-secondary" type="reset">Reset Form</button>
+          </div>
+        </form>
+
+        <aside class="card booking-help">
+          <h2>Before You Submit</h2>
+          <ul>
+            <li>Use the name shown on your photo ID.</li>
+            <li>Enter a reachable phone number with 10 to 15 characters.</li>
+            <li>You can book between 1 and 10 tickets per request.</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 IPL Ticket Booking. All rights reserved.</p>
+  </footer>
+</body>
+</html>
