@@ -119,6 +119,26 @@ nav {
   transform: scaleX(1);
 }
 
+.menu-toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.menu-toggle span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  margin: 5px 0;
+  background: var(--beige);
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
 section {
   padding: 88px 0;
 }
@@ -348,6 +368,11 @@ legend {
   text-align: left;
 }
 
+.booking-help {
+  display: grid;
+  gap: 24px;
+}
+
 .booking-help li + li {
   margin-top: 12px;
 }
@@ -373,12 +398,39 @@ legend {
 .filter-bar {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 12px;
   margin-bottom: 16px;
   color: var(--text-muted);
   font-size: 0.9rem;
   font-weight: 700;
+}
+
+.filter-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.view-button {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 14px;
+  color: var(--primary);
+  background: var(--surface);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.view-button.is-active {
+  color: #fff;
+  background: var(--primary);
 }
 
 select,
@@ -401,6 +453,95 @@ input:focus {
 .filter-bar select {
   width: auto;
   min-width: 200px;
+}
+
+.match-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.match-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.match-card[hidden] {
+  display: none;
+}
+
+.match-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  color: var(--primary-light);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+.match-card h3 {
+  font-size: 1.5rem;
+}
+
+.match-card p {
+  color: var(--text-muted);
+}
+
+.ticket-prices {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 8px 0 20px;
+}
+
+.ticket-prices div {
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--surface-muted);
+  text-align: center;
+}
+
+.ticket-prices dt {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.ticket-prices dd {
+  margin: 4px 0 0;
+  color: var(--primary);
+  font-weight: 900;
+}
+
+.match-card .button {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.match-grid.is-list {
+  grid-template-columns: 1fr;
+}
+
+.match-grid.is-list .match-card {
+  display: grid;
+  grid-template-columns: 0.8fr 1fr 1.4fr auto;
+  align-items: center;
+  gap: 20px;
+}
+
+.match-grid.is-list .match-card-header {
+  display: grid;
+  margin: 0;
+}
+
+.match-grid.is-list .match-card p,
+.match-grid.is-list .ticket-prices {
+  margin: 0;
 }
 
 .table-wrap {
@@ -561,25 +702,54 @@ footer p {
 
 @media (max-width: 760px) {
   body {
-    padding-top: 116px;
+    padding-top: 72px;
   }
 
   nav {
-    min-height: 116px;
+    min-height: 72px;
     padding: 14px 0;
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
     gap: 8px;
   }
 
+  .menu-toggle {
+    display: block;
+  }
+
   .nav-links {
-    width: 100%;
-    justify-content: space-between;
-    gap: 6px 12px;
+    position: absolute;
+    top: 72px;
+    right: 20px;
+    left: 20px;
+    display: none;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 12px 16px;
+    background: var(--primary-dark);
+    box-shadow: var(--shadow);
+  }
+
+  .nav-links.is-open {
+    display: grid;
+  }
+
+  .menu-toggle.is-open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .menu-toggle.is-open span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .menu-toggle.is-open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
   }
 
   .nav-links a {
-    font-size: 0.78rem;
+    display: block;
+    padding: 10px 4px;
+    font-size: 0.88rem;
   }
 
   section {
@@ -608,6 +778,28 @@ footer p {
   .standalone-form {
     padding: 22px;
   }
+
+  .match-grid,
+  .match-grid.is-list {
+    grid-template-columns: 1fr;
+  }
+
+  .match-grid.is-list .match-card {
+    display: flex;
+  }
+
+  .match-grid.is-list .match-card-header {
+    display: flex;
+  }
+
+  .match-grid.is-list .match-card p,
+  .match-grid.is-list .ticket-prices {
+    margin: initial;
+  }
+
+  .match-card .button {
+    align-self: stretch;
+  }
 }
 
 @media (max-width: 480px) {
@@ -633,7 +825,24 @@ footer p {
     flex-direction: column;
   }
 
+  .filter-control {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .filter-bar select {
     width: 100%;
+  }
+
+  .view-toggle {
+    width: 100%;
+  }
+
+  .view-button {
+    flex: 1;
+  }
+
+  .ticket-prices {
+    grid-template-columns: 1fr;
   }
 }

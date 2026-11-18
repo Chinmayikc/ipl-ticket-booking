@@ -37,36 +37,85 @@ function scrollToBookingForm() {
 }
 
 const filter = document.querySelector('#team-filter');
-const rows = document.querySelectorAll('#schedule-body tr');
-const match = document.querySelector('#match');
-const stand = document.querySelector('#stand');
-const quantity = document.querySelector('#quantity');
+const matchCards = document.querySelectorAll('#schedule-body .match-card');
+const menuToggle = document.querySelector('.menu-toggle');
+const navLinks = document.querySelector('#nav-links');
+const gridView = document.querySelector('#grid-view');
+const listView = document.querySelector('#list-view');
+const scheduleBody = document.querySelector('#schedule-body');
+const match = document.getElementById('match');
+const stand = document.getElementById('stand');
+const quantity = document.getElementById('quantity');
 const bookingForm = document.querySelector('#booking-form');
 const bookingRecords = document.querySelector('#booking-records');
+const summaryMatch = document.getElementById('summary-match');
+const summaryStand = document.getElementById('summary-stand');
+const summaryPrice = document.getElementById('summary-price');
+const summaryQuantity = document.getElementById('summary-quantity');
+const summaryTotal = document.getElementById('summary-total');
 
-function updateSummary() {
-  if (!match || !stand || !quantity) return;
+function updateSummary(notify = false) {
+  if (
+    !match || !stand || !quantity ||
+    !summaryMatch || !summaryStand || !summaryPrice ||
+    !summaryQuantity || !summaryTotal
+  ) return;
 
   const selectedMatch = match.options[match.selectedIndex];
   const selectedStand = stand.options[stand.selectedIndex];
   const basePrice = Number(selectedMatch.dataset.price || 0);
   const ticketPrice = Math.round(basePrice * Number(selectedStand.dataset.multiplier || 1));
   const count = Number(quantity.value) || 0;
+  const total = ticketPrice * count;
 
-  document.querySelector('#summary-match').textContent = match.value || 'Not selected';
-  document.querySelector('#summary-stand').textContent = stand.value;
-  document.querySelector('#summary-price').textContent = ticketPrice.toLocaleString('en-IN');
-  document.querySelector('#summary-quantity').textContent = count;
-  document.querySelector('#summary-total').textContent = (ticketPrice * count).toLocaleString('en-IN');
+  summaryMatch.textContent = match.value || 'Not selected';
+  summaryStand.textContent = stand.value || 'Not selected';
+  summaryPrice.textContent = ticketPrice.toLocaleString('en-IN');
+  summaryQuantity.textContent = count;
+  summaryTotal.textContent = total.toLocaleString('en-IN');
+
+  if (notify) {
+    showToast('Booking summary updated.');
+  }
 }
 
 if (filter) {
   filter.addEventListener('change', () => {
-    rows.forEach((row) => {
-      row.hidden = filter.value !== 'all' && !row.dataset.teams.includes(filter.value);
+    matchCards.forEach((card) => {
+      card.hidden = filter.value !== 'all' && !card.dataset.teams.includes(filter.value);
     });
   });
 }
+
+if (menuToggle && navLinks) {
+  menuToggle.addEventListener('click', () => {
+    const isOpen = navLinks.classList.toggle('is-open');
+    menuToggle.classList.toggle('is-open', isOpen);
+    menuToggle.setAttribute('aria-expanded', String(isOpen));
+  });
+
+  navLinks.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      navLinks.classList.remove('is-open');
+      menuToggle.classList.remove('is-open');
+      menuToggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+}
+
+function setMatchView(view) {
+  if (!scheduleBody || !gridView || !listView) return;
+
+  const isList = view === 'list';
+  scheduleBody.classList.toggle('is-list', isList);
+  gridView.classList.toggle('is-active', !isList);
+  listView.classList.toggle('is-active', isList);
+  gridView.setAttribute('aria-pressed', String(!isList));
+  listView.setAttribute('aria-pressed', String(isList));
+}
+
+gridView?.addEventListener('click', () => setMatchView('grid'));
+listView?.addEventListener('click', () => setMatchView('list'));
 
 document.querySelectorAll('[data-match]').forEach((button) => {
   button.addEventListener('click', (event) => {
@@ -81,7 +130,15 @@ document.querySelectorAll('[data-match]').forEach((button) => {
 });
 
 if (match && stand && quantity) {
-  [match, stand, quantity].forEach((field) => field.addEventListener('input', updateSummary));
+  [match, stand, quantity].forEach((field) => {
+    field.addEventListener('change', () => updateSummary(true));
+  });
+  quantity.addEventListener('input', () => updateSummary());
+  if (bookingForm) {
+    bookingForm.addEventListener('reset', () => {
+      window.requestAnimationFrame(() => updateSummary());
+    });
+  }
   updateSummary();
 }
 
