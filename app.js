@@ -45,7 +45,7 @@ const listView = document.querySelector('#list-view');
 const scheduleBody = document.querySelector('#schedule-body');
 const match = document.getElementById('match');
 const stand = document.getElementById('stand');
-const quantity = document.getElementById('quantity');
+const quantity = document.getElementById('quantity') || document.getElementById('tickets');
 const bookingForm = document.querySelector('#booking-form');
 const bookingRecords = document.querySelector('#booking-records');
 const summaryMatch = document.getElementById('summary-match');
@@ -64,12 +64,15 @@ function updateSummary(notify = false) {
   const selectedMatch = match.options[match.selectedIndex];
   const selectedStand = stand.options[stand.selectedIndex];
   const basePrice = Number(selectedMatch.dataset.price || 0);
-  const ticketPrice = Math.round(basePrice * Number(selectedStand.dataset.multiplier || 1));
+  const standMultiplier = selectedStand.dataset.multiplier === undefined
+    ? 1
+    : Number(selectedStand.dataset.multiplier);
+  const ticketPrice = Math.round(basePrice * standMultiplier);
   const count = Number(quantity.value) || 0;
   const total = ticketPrice * count;
 
-  summaryMatch.textContent = match.value || 'Not selected';
-  summaryStand.textContent = stand.value || 'Not selected';
+  summaryMatch.textContent = selectedMatch.dataset.label || match.value || 'Not selected';
+  summaryStand.textContent = selectedStand.dataset.label || stand.value || 'Not selected';
   summaryPrice.textContent = ticketPrice.toLocaleString('en-IN');
   summaryQuantity.textContent = count;
   summaryTotal.textContent = total.toLocaleString('en-IN');
@@ -169,6 +172,16 @@ if (bookingForm && bookingRecords && match && stand && quantity) {
     bookingForm.reset();
     updateSummary();
     scrollToElement(document.querySelector('#bookings'));
+    showToast('Booking confirmed successfully.');
+  });
+}
+
+if (bookingForm && !bookingRecords && match && stand && quantity) {
+  bookingForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!bookingForm.reportValidity()) return;
+
+    updateSummary();
     showToast('Booking confirmed successfully.');
   });
 }
