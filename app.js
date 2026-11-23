@@ -104,6 +104,22 @@ if (menuToggle && navLinks) {
       menuToggle.setAttribute('aria-expanded', 'false');
     });
   });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      navLinks.classList.remove('is-open');
+      menuToggle.classList.remove('is-open');
+      menuToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 760) {
+      navLinks.classList.remove('is-open');
+      menuToggle.classList.remove('is-open');
+      menuToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
 }
 
 function setMatchView(view) {
