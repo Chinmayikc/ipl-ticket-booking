@@ -22,6 +22,8 @@ create table if not exists public.bookings (
   created_at timestamptz not null default now()
 );
 
+alter table public.bookings add column if not exists stand text;
+
 insert into public.matches (match_number, match_date, title, venue, available_seats, prices)
 values
   (1, '2026-03-28', 'CSK vs MI', 'Wankhede Stadium, Mumbai', 1200, '[{"category":"General","amount":1500},{"category":"Premium","amount":3500},{"category":"VIP","amount":7500}]'),
@@ -44,6 +46,9 @@ create policy "Public can update match seats" on public.matches for update to an
 
 drop policy if exists "Public can create bookings" on public.bookings;
 create policy "Public can create bookings" on public.bookings for insert to anon, authenticated with check (seats > 0);
+
+drop policy if exists "Public can read bookings" on public.bookings;
+create policy "Public can read bookings" on public.bookings for select to anon, authenticated using (true);
 
 alter table public.matches replica identity full;
 alter table public.bookings replica identity full;
