@@ -1,21 +1,30 @@
-function MatchCard({ match }) {
+function MatchCard({ match, onBook }) {
+  const formattedDate = new Date(`${match.match_date}T00:00:00`).toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+
   return (
     <article className="match-card">
       <div className="match-card-header">
-        <span>{match.number}</span>
-        <strong>{match.date}</strong>
+        <span>Match {String(match.match_number).padStart(2, '0')}</span>
+        <strong>{formattedDate}</strong>
       </div>
       <h3>{match.title}</h3>
       <p>{match.venue}</p>
+      <p className="availability">{match.available_seats} seats available</p>
       <dl className="ticket-prices">
         {match.prices.map((price) => (
           <div key={price.category}>
             <dt>{price.category}</dt>
-            <dd>{price.amount}</dd>
+            <dd>₹{Number(price.amount).toLocaleString('en-IN')}</dd>
           </div>
         ))}
       </dl>
-      <a className="button small-button" href="#booking">Book</a>
+      <button className="button small-button" type="button" disabled={!match.available_seats} onClick={() => onBook(match)}>
+        {match.available_seats ? 'Book' : 'Sold out'}
+      </button>
     </article>
   )
 }
