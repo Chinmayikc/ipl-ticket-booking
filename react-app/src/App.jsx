@@ -3,7 +3,7 @@ import './App.css'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import MatchCard from './components/MatchCard'
-import { supabase } from './supabase'
+import { isSupabaseConfigured, supabase } from './supabase'
 
 const fallbackTeams = ['All teams', 'CSK', 'MI', 'RCB', 'KKR']
 
@@ -17,6 +17,11 @@ function App() {
   const [message, setMessage] = useState(null)
 
   const fetchMatches = async () => {
+    if (!isSupabaseConfigured) {
+      setMessage({ type: 'error', text: 'Supabase is not configured. Add credentials to react-app/.env.local and restart Vite.' })
+      setLoading(false)
+      return
+    }
     const { data, error } = await supabase.from('matches').select('*').order('match_date')
     if (error) {
       setMessage({ type: 'error', text: `Could not load matches: ${error.message}` })
@@ -30,6 +35,8 @@ function App() {
 
   useEffect(() => {
     fetchMatches()
+
+    if (!isSupabaseConfigured) return undefined
 
     const channel = supabase
       .channel('matches-live-updates')
@@ -60,6 +67,10 @@ function App() {
   const handleSubmit = async (event) => {
     event.preventDefault()
     if (!selectedMatch) return
+    if (!isSupabaseConfigured) {
+      setMessage({ type: 'error', text: 'Configure Supabase before booking a ticket.' })
+      return
+    }
 
     const seats = Number(form.seats)
     if (!form.name.trim() || !form.email.trim() || seats < 1 || seats > selectedMatch.available_seats) {
