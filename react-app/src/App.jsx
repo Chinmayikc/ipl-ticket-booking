@@ -7,6 +7,12 @@ import { isSupabaseConfigured, supabase } from './supabase'
 
 const fallbackTeams = ['All teams', 'CSK', 'MI', 'RCB', 'KKR']
 
+function createBookingCode() {
+  const token = globalThis.crypto?.randomUUID?.().replaceAll('-', '').slice(0, 10)
+    || `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`
+  return `IPL-${token.toUpperCase()}`
+}
+
 function App() {
   const [matches, setMatches] = useState([])
   const [team, setTeam] = useState('All teams')
@@ -82,7 +88,9 @@ function App() {
     setMessage(null)
 
     const totalAmount = selectedMatch.prices.reduce((sum, price) => sum + Number(price.amount), 0) * seats
+    const bookingCode = createBookingCode()
     const { error: bookingError } = await supabase.from('bookings').insert({
+      booking_code: bookingCode,
       match_id: selectedMatch.id,
       customer_name: form.name.trim(),
       customer_email: form.email.trim(),

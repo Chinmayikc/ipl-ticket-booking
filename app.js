@@ -24,7 +24,6 @@ function scrollToElement(target) {
 
 const config = window.IPL_SUPABASE_CONFIG || {};
 const hasSupabaseConfig = Boolean(config.url && config.publishableKey && !config.url.includes('your-project'));
-const localStorageKey = 'ipl-ticket-bookings';
 
 async function supabaseRequest(path, options = {}) {
   const response = await fetch(`${config.url}/rest/v1/${path}`, {
@@ -40,12 +39,14 @@ async function supabaseRequest(path, options = {}) {
   return response.status === 204 ? null : response.json();
 }
 
-function getLocalBookings() {
-  try { return JSON.parse(localStorage.getItem(localStorageKey) || '[]'); } catch { return []; }
-}
-
 function formatMoney(value) {
   return Number(value || 0).toLocaleString('en-IN');
+}
+
+function createBookingCode() {
+  const token = window.crypto?.randomUUID?.().replace(/-/g, '').slice(0, 10)
+    || `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+  return `IPL-${token.toUpperCase()}`;
 }
 
 function renderBookings(bookings) {
@@ -59,7 +60,7 @@ function renderBookings(bookings) {
   bookings.forEach((booking) => {
     const row = document.createElement('tr');
     [
-      booking.id || `IPL-${Date.now().toString().slice(-6)}`,
+      booking.booking_code || booking.id || `IPL-${Date.now().toString().slice(-6)}`,
       booking.match || booking.matches?.title || 'Selected match',
       booking.stand || '—',
       booking.seats || booking.quantity || 1,
@@ -76,14 +77,14 @@ function renderBookings(bookings) {
 async function loadBookings() {
   if (!document.querySelector('#booking-records')) return;
   if (!hasSupabaseConfig) {
-    renderBookings(getLocalBookings());
+    renderBookings([]);
+    showToast('Supabase is not configured. No database bookings can be loaded.');
     return;
   }
   try {
-    const bookings = await supabaseRequest('bookings?select=id,stand,seats,total_amount,created_at,matches(title)&order=created_at.desc');
+    const bookings = await supabaseRequest('bookings?select=id,booking_code,stand,seats,total_amount,created_at,matches(title)&order=created_at.desc');
     renderBookings(bookings || []);
   } catch (error) {
-    renderBookings(getLocalBookings());
     showToast(`Supabase could not load bookings: ${error.message}`);
   }
 }
@@ -91,6 +92,7 @@ async function loadBookings() {
 async function saveBooking(formData) {
   const matchNumber = Number(formData.match.replace('match-', ''));
   const booking = {
+    booking_code: createBookingCode(),
     match: formData.matchLabel,
     stand: formData.standLabel,
     seats: Number(formData.quantity),
@@ -98,9 +100,7 @@ async function saveBooking(formData) {
   };
 
   if (!hasSupabaseConfig) {
-    const localBooking = { ...booking, id: `IPL-${Date.now().toString().slice(-6)}` };
-    localStorage.setItem(localStorageKey, JSON.stringify([localBooking, ...getLocalBookings()]));
-    return localBooking;
+    throw new Error('Supabase is not configured. Add supabase-browser-config.js before booking.');
   }
 
   const matches = await supabaseRequest(`matches?match_number=eq.${matchNumber}&select=id,available_seats`);
@@ -112,6 +112,7 @@ async function saveBooking(formData) {
     method: 'POST',
     headers: { Prefer: 'return=representation' },
     body: JSON.stringify({
+      booking_code: booking.booking_code,
       match_id: selectedMatch.id,
       stand: booking.stand,
       customer_name: formData.name,

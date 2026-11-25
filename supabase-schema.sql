@@ -14,6 +14,7 @@ create table if not exists public.matches (
 
 create table if not exists public.bookings (
   id uuid primary key default gen_random_uuid(),
+  booking_code text not null unique default ('IPL-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 10))),
   match_id uuid not null references public.matches(id) on delete cascade,
   customer_name text not null,
   customer_email text not null,
@@ -23,6 +24,16 @@ create table if not exists public.bookings (
 );
 
 alter table public.bookings add column if not exists stand text;
+alter table public.bookings add column if not exists booking_code text;
+
+-- Backfill databases created from an older version of this schema.
+update public.bookings
+set booking_code = 'IPL-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 10))
+where booking_code is null;
+
+alter table public.bookings
+  alter column booking_code set default ('IPL-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 10)));
+alter table public.bookings alter column booking_code set not null;
 
 insert into public.matches (match_number, match_date, title, venue, available_seats, prices)
 values
