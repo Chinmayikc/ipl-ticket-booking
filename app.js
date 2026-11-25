@@ -90,7 +90,8 @@ async function loadBookings() {
 }
 
 async function saveBooking(formData) {
-  const matchNumber = Number(formData.match.replace('match-', ''));
+  const matchNumber = Number(String(formData.match).match(/\d+/)?.[0]);
+  if (!Number.isInteger(matchNumber)) throw new Error('Please select a valid match.');
   const booking = {
     booking_code: createBookingCode(),
     match: formData.matchLabel,
